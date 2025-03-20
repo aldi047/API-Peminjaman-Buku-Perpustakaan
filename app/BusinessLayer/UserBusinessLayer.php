@@ -25,7 +25,7 @@ class UserBusinessLayer
 
         } catch (\Exception $e) {
             $response = new ResponseCreatorPresentationLayer(
-                500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, $e);
+                500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, null);
         }
         return $response->getResponse();
     }
@@ -33,6 +33,7 @@ class UserBusinessLayer
     public function editUser($request)
     {
         try {
+            DB::beginTransaction();
             $validation = Validator::make(request()->all(), [
                 'role_id'   => 'required',
                 'user_id'   => 'required',
@@ -42,6 +43,7 @@ class UserBusinessLayer
             ]);
 
             if ($validation->fails()) {
+                DB::rollBack();
                 $response = new ResponseCreatorPresentationLayer(
                     401, 'Gagal Validasi Edit User',
                     null, null);
@@ -53,6 +55,7 @@ class UserBusinessLayer
 
             $user = User::find($user_id);
             if (!$user) {
+                DB::rollBack();
                 $response = new ResponseCreatorPresentationLayer(
                     400, 'User tidak ditemukan',
                     null, null);
@@ -61,10 +64,12 @@ class UserBusinessLayer
 
             $user->role_id = $role_id;
             $user->save();
+            DB::commit();
 
             $response = new ResponseCreatorPresentationLayer(
                 200, 'Berhasil Edit Role User ' . $user->nama, [], []);
         } catch (\Exception $e) {
+            DB::rollBack();
             $response = new ResponseCreatorPresentationLayer(
                 500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, null);
         }
@@ -74,8 +79,10 @@ class UserBusinessLayer
     public function deleteUser($user_id)
     {
         try {
+            DB::beginTransaction();
             $user = User::find($user_id);
             if (!$user) {
+                DB::rollBack();
                 $response = new ResponseCreatorPresentationLayer(
                     400, 'User tidak ditemukan',
                     null, null);
@@ -83,10 +90,11 @@ class UserBusinessLayer
             }
 
             $user->delete();
-
+            DB::commit();
             $response = new ResponseCreatorPresentationLayer(
                 200, 'Berhasil Menghapus User ' . $user->nama, [], []);
         } catch (\Exception $e) {
+            DB::rollBack();
             $response = new ResponseCreatorPresentationLayer(
                 500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, null);
         }

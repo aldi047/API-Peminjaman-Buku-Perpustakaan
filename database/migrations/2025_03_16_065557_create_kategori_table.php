@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('kategori', function (Blueprint $table) {
             $table->bigIncrements('kategori_id');
-            $table->string('nama');
+            $table->string('nama')->unique();
             $table->smallInteger('is_available')->default(0);
             $table->timestamps();
         });

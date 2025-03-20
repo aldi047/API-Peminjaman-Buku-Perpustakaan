@@ -22,3 +22,10 @@ Route::group(['prefix' => 'user'], function (){
     Route::post('/edit', 'UserController@editUser');
     Route::delete('/delete/{user_id}', 'UserController@deleteUser');
 });
+
+Route::group(['prefix' => 'kategori'], function (){
+    Route::get('/', 'KategoriController@getAllKategori');
+    Route::post('/tambah', 'KategoriController@addKategori');
+    Route::post('/{id}/edit', 'KategoriController@editKategori');
+    Route::delete('/{id}/delete', 'KategoriController@deleteKategori');
+});
