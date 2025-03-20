@@ -50,14 +50,30 @@ class AuthBusinessLayer
         } catch (\Exception $e) {
             DB::rollBack();
             $response = new ResponseCreatorPresentationLayer(
-                500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, $e);
+                500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, null);
         }
         return $response->getResponse();
     }
 
-    public function login(Request $userData)
+    public function login()
     {
         try {
+            $validation = Validator::make(request()->all(), [
+                'email'     => 'required|email',
+                'password'  => 'required',
+            ], [
+                'email.required'    => 'Email harus diisi',
+                'email.email'       => 'Pastikan format email benar',
+                'password.required' => 'Password harus diisi'
+            ]);
+
+            if ($validation->fails()) {
+                $response = new ResponseCreatorPresentationLayer(
+                    401, 'Gagal Validasi Data Login',
+                    null, $validation->errors());
+                return $response->getResponse();
+            }
+
             $credentials = request(['email', 'password']);
 
             if (! $token = auth()->attempt($credentials)) {
@@ -73,9 +89,8 @@ class AuthBusinessLayer
             $response = new ResponseCreatorPresentationLayer(
                 200, 'Berhasil Login', $data_login, []);
         } catch (\Exception $e) {
-            DB::rollBack();
             $response = new ResponseCreatorPresentationLayer(
-                500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, $e);
+                500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, null);
         }
         return $response->getResponse();
     }
@@ -88,9 +103,8 @@ class AuthBusinessLayer
             $response = new ResponseCreatorPresentationLayer(
                 200, 'Berhasil Logout', [], null);
         } catch (\Exception $e) {
-            DB::rollBack();
             $response = new ResponseCreatorPresentationLayer(
-                500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, $e);
+                500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, null);
         }
         return $response->getResponse();
     }
@@ -107,9 +121,8 @@ class AuthBusinessLayer
             $response = new ResponseCreatorPresentationLayer(
                 200, 'Berhasil Mengambil Refresh Token', $data_login, []);
         } catch (\Exception $e) {
-            DB::rollBack();
             $response = new ResponseCreatorPresentationLayer(
-                500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, $e);
+                500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, null);
         }
         return $response->getResponse();
     }
