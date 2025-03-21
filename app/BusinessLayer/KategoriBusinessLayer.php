@@ -27,7 +27,7 @@ class KategoriBusinessLayer
                 DB::rollBack();
                 $response = new ResponseCreatorPresentationLayer(
                     401, 'Gagal Validasi Tambah Kategori',
-                    null, null);
+                    null, $validation->errors());
                 return $response->getResponse();
             }
             $nama_kategori = $request->get('nama');

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('pengarang');
             $table->text('sinopsis')->default('');
             $table->smallInteger('stok')->default(0);
-            $table->string('foto');
+            $table->string('foto')->nullable();
             $table->timestamps();
 
             $table->foreign('kategori_id')->references('kategori_id')->on('kategori')->cascadeOnDelete();

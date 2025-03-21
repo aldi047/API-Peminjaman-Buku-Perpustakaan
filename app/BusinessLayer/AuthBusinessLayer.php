@@ -49,8 +49,8 @@ class AuthBusinessLayer
                 201, 'Berhasil Menambahkan Pengguna', [], null);
         } catch (\Exception $e) {
             DB::rollBack();
-            $response = new ResponseCreatorPresentationLayer(
-                500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, null);
+            $errors[] = $e->getMessage();
+            $response = (new ResponseCreatorPresentationLayer(500, 'Terjadi kesalahan pada server', [], $errors));
         }
         return $response->getResponse();
     }
@@ -87,10 +87,10 @@ class AuthBusinessLayer
             ];
 
             $response = new ResponseCreatorPresentationLayer(
-                200, 'Berhasil Login', $data_login, []);
+                200, 'Berhasil Login', $data_login, null);
         } catch (\Exception $e) {
-            $response = new ResponseCreatorPresentationLayer(
-                500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, null);
+            $errors[] = $e->getMessage();
+            $response = (new ResponseCreatorPresentationLayer(500, 'Terjadi kesalahan pada server', [], $errors));
         }
         return $response->getResponse();
     }
@@ -103,8 +103,8 @@ class AuthBusinessLayer
             $response = new ResponseCreatorPresentationLayer(
                 200, 'Berhasil Logout', [], null);
         } catch (\Exception $e) {
-            $response = new ResponseCreatorPresentationLayer(
-                500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, null);
+            $errors[] = $e->getMessage();
+            $response = (new ResponseCreatorPresentationLayer(500, 'Terjadi kesalahan pada server', [], $errors));
         }
         return $response->getResponse();
     }
@@ -119,10 +119,10 @@ class AuthBusinessLayer
             ];
 
             $response = new ResponseCreatorPresentationLayer(
-                200, 'Berhasil Mengambil Refresh Token', $data_login, []);
+                200, 'Berhasil Mengambil Refresh Token', $data_login, null);
         } catch (\Exception $e) {
-            $response = new ResponseCreatorPresentationLayer(
-                500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, null);
+            $errors[] = $e->getMessage();
+            $response = (new ResponseCreatorPresentationLayer(500, 'Terjadi kesalahan pada server', [], $errors));
         }
         return $response->getResponse();
     }

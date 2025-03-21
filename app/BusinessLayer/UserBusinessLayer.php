@@ -24,8 +24,8 @@ class UserBusinessLayer
                 200, 'Berhasil Mengambil Data Pengguna', $data, null);
 
         } catch (\Exception $e) {
-            $response = new ResponseCreatorPresentationLayer(
-                500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, null);
+            $errors[] = $e->getMessage();
+            $response = (new ResponseCreatorPresentationLayer(500, 'Terjadi kesalahan pada server', [], $errors));
         }
         return $response->getResponse();
     }
@@ -67,11 +67,11 @@ class UserBusinessLayer
             DB::commit();
 
             $response = new ResponseCreatorPresentationLayer(
-                200, 'Berhasil Edit Role User ' . $user->nama, [], []);
+                200, 'Berhasil Edit Role User ' . $user->nama, [], null);
         } catch (\Exception $e) {
             DB::rollBack();
-            $response = new ResponseCreatorPresentationLayer(
-                500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, null);
+            $errors[] = $e->getMessage();
+            $response = (new ResponseCreatorPresentationLayer(500, 'Terjadi kesalahan pada server', [], $errors));
         }
         return $response->getResponse();
     }
@@ -92,11 +92,11 @@ class UserBusinessLayer
             $user->delete();
             DB::commit();
             $response = new ResponseCreatorPresentationLayer(
-                200, 'Berhasil Menghapus User ' . $user->nama, [], []);
+                200, 'Berhasil Menghapus User ' . $user->nama, [], null);
         } catch (\Exception $e) {
             DB::rollBack();
-            $response = new ResponseCreatorPresentationLayer(
-                500, 'Terjadi Kesalahan Pada Server : ' . $e->getMessage(), null, null);
+            $errors[] = $e->getMessage();
+            $response = (new ResponseCreatorPresentationLayer(500, 'Terjadi kesalahan pada server', [], $errors));
         }
         return $response->getResponse();
     }

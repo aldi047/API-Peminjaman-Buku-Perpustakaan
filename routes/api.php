@@ -29,3 +29,13 @@ Route::group(['prefix' => 'kategori'], function (){
     Route::post('/{id}/edit', 'KategoriController@editKategori');
     Route::delete('/{id}/delete', 'KategoriController@deleteKategori');
 });
+
+Route::group(['prefix' => 'buku'], function (){
+    Route::get('/', 'BukuController@getAllBuku');
+    Route::post('/tambah', 'BukuController@addBuku');
+    Route::post('/{id}/edit', 'BukuController@editBuku');
+    Route::delete('/{id}/delete', 'BukuController@deleteBuku');
+});
+
+
+Route::get('/files', 'BukuController@getFile');
