@@ -37,5 +37,11 @@ Route::group(['prefix' => 'buku'], function (){
     Route::delete('/{id}/delete', 'BukuController@deleteBuku');
 });
 
+Route::group(['prefix' => 'peminjaman'], function (){
+    Route::get('/', 'PeminjamanController@getPeminjaman');
+    Route::post('/', 'PeminjamanController@pinjamBuku');
+    Route::get('/{id}', 'PeminjamanController@getPeminjamanById');
+    Route::get('/{id}/kembalikan', 'PeminjamanController@kembalikanBuku');
+});
 
 Route::get('/files', 'BukuController@getFile');

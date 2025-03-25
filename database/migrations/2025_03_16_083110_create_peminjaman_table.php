@@ -17,7 +17,7 @@ return new class extends Migration
             $table->bigInteger('petugas_user_id');
             $table->bigInteger('buku_id');
             $table->timestamp('waktu_peminjaman')->useCurrent();
-            $table->smallInteger('durasi_peminjaman_in_days')->nullable();
+            $table->smallInteger('durasi_peminjaman_in_days');
             $table->timestamp('waktu_pengembalian')->nullable();
             $table->smallInteger('total_keterlambatan_in_days')->nullable();
             $table->float('total_denda')->nullable();

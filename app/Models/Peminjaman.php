@@ -19,6 +19,15 @@ class Peminjaman extends Model
         'total_denda'
     ];
 
+    protected $hidden = [
+        'created_at', 'updated_at'
+    ];
+
+    protected $casts = [
+        'waktu_peminjaman' => 'datetime',
+        'waktu_pengembalian' => 'datetime'
+    ];
+
     public function peminjam()
     {
         return $this->belongsTo(User::class, 'peminjam_user_id', 'user_id');

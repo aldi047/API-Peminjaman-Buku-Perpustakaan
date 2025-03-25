@@ -3,6 +3,7 @@
 namespace App\BusinessLayer;
 
 use App\Models\Buku;
+use App\Models\Kategori;
 use App\Models\User;
 use App\PresentationLayer\ResponseCreatorPresentationLayer;
 use Carbon\Carbon;
@@ -52,8 +53,14 @@ class BukuBusinessLayer
                 $path = $this->uploadFoto($request->foto);
                 $data['foto'] = $path;
             }
-
             Buku::create($data);
+
+            $kategori = Kategori::findOrFail($request->get('kategori_id'));
+            if ($kategori->is_available == 0)
+            {
+                $kategori->is_available = 1;
+                $kategori->save();
+            }
             DB::commit();
 
             $response = new ResponseCreatorPresentationLayer(
@@ -152,11 +159,20 @@ class BukuBusinessLayer
                 return $response->getResponse();
             }
 
+            $kategori = Kategori::findOrFail($buku->kategori_id);
+
             if ($buku->foto){
                 $this->deleteFoto($buku->foto);
             }
             $buku->delete();
 
+
+            $is_kategori_has_book = Buku::where('kategori_id', $kategori->kategori_id)->first();
+            if(!$is_kategori_has_book)
+            {
+                $kategori->is_available = 0;
+                $kategori->save();
+            }
             $response = new ResponseCreatorPresentationLayer(
                 200, 'Berhasil Menghapus Buku ' . $buku->nama, [], null);
         } catch (\Exception $e) {

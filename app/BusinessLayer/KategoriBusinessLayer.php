@@ -71,7 +71,10 @@ class KategoriBusinessLayer
             DB::beginTransaction();
             $validation = Validator::make(request()->all(), [
                 'nama' => 'nullable|unique:kategori,nama,' . $id . ',kategori_id',
-                'is_available'  => 'nullable|in:0,1',
+                'is_available'  => 'nullable|in:0,1'
+                // 'peminjam_user_id'  => 'required|unique:peminjaman,peminjam_user_id,' . $id . ',peminjaman_id',
+                // 'petugas_user_id'   => 'required|unique:peminjaman,petugas_user_id,' . $id . ',peminjaman_id',
+                // 'buku_id'           => 'required|unique:peminjaman,buku_id,' . $id. ',peminjaman_id'
             ], [
                 'nama.unique'           => 'nama tidak boleh sama',
                 'is_available.in'       => 'is_available hanya boleh diisi 1 atau 0'
