@@ -77,8 +77,17 @@ class BukuBusinessLayer
     {
         try {
             $perPage = $request->get('perPage');
+            $search = $request->get('search');
+            $filter = $request->get('filter');
 
-            $buku = Buku::query();
+            $buku = Buku::when($search, function ($q) use ($search) {
+                            $q->where('nama', 'ilike', "%{$search}%");
+                            $q->orWhere('isbn', 'ilike', "%{$search}%");
+                        })
+                        ->when($filter, function ($q) use ($filter) {
+                            $q->where('kategori_id', $filter);
+                        }
+                    );
 
             $data = $perPage ? $buku->paginate($perPage) : $buku->get();
 
@@ -133,7 +142,6 @@ class BukuBusinessLayer
                 $new_path = $this->uploadFoto($request->foto);
                 $data['foto'] = $new_path;
             }
-
 
             $buku->update($data);
             DB::commit();
