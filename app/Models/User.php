@@ -22,7 +22,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     ];
 
     protected $hidden = [
-        'password', 'role_id', 'role', 'deleted_at'
+        'password', 'role_id', 'role', 'created_at', 'updated_at', 'deleted_at'
     ];
 
     protected $appends = ['role_name'];

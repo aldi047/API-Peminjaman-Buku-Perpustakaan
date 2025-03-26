@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Peminjaman;
 use Illuminate\Http\Request;
 
 class PeminjamanController extends Controller
@@ -35,6 +36,21 @@ class PeminjamanController extends Controller
     {
         $data = $this->peminjamanBusinessLayer->kembalikanBuku($id);
         return response()->json($data, $data['code']);
+    }
+
+    public function cobaPrint()
+    {
+        $peminjamanList = Peminjaman::with(['detailPeminjam', 'detailPetugas', 'detailBuku'])->get();
+        return view('data_print', compact('peminjamanList'));
+    }
+
+    public function printDetailPeminjaman(Request $request, $id)
+    {
+        // $peminjamanList = Peminjaman::with(['detailPeminjam', 'detailPetugas', 'detailBuku'])
+        //                     ->where('peminjaman_id', $id)->get();
+
+        // return view('data_print', compact('peminjamanList'));
+        return $this->peminjamanBusinessLayer->printDetailPeminjaman($id);
     }
 
 }

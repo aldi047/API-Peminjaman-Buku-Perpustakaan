@@ -42,6 +42,7 @@ Route::group(['prefix' => 'peminjaman'], function (){
     Route::post('/', 'PeminjamanController@pinjamBuku');
     Route::get('/{id}', 'PeminjamanController@getPeminjamanById');
     Route::get('/{id}/kembalikan', 'PeminjamanController@kembalikanBuku');
+    Route::get('/{id}/print-to-pdf', 'PeminjamanController@printDetailPeminjaman');
 });
 
 Route::get('/files', 'BukuController@getFile');

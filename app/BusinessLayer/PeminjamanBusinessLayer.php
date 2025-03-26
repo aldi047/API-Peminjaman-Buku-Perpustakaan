@@ -6,6 +6,7 @@ use App\Models\Buku;
 use App\Models\Kategori;
 use App\Models\Peminjaman;
 use App\PresentationLayer\ResponseCreatorPresentationLayer;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -72,7 +73,7 @@ class PeminjamanBusinessLayer
         try {
             $perPage = $request->get('perPage');
 
-            $buku = Peminjaman::query();
+            $buku = Peminjaman::with(['detailPeminjam', 'detailPetugas', 'detailBuku']);
 
             $data = $perPage ? $buku->paginate($perPage) : $buku->get();
 
@@ -144,5 +145,30 @@ class PeminjamanBusinessLayer
             $response = (new ResponseCreatorPresentationLayer(500, 'Terjadi kesalahan pada server', [], $errors));
         }
         return $response->getResponse();
+    }
+
+    public function printDetailPeminjaman($id)
+    {
+        try {
+            $peminjaman = Peminjaman::with(['detailPeminjam', 'detailPetugas', 'detailBuku'])
+                            ->where('peminjaman_id', $id)->get();
+            $pdf = Pdf::loadView('data_print', ['peminjamanList' => $peminjaman]);
+            $pdf->getDomPDF()->setHttpContext(
+                stream_context_create([
+                    'ssl' => [
+                        'allow_self_signed'=> TRUE,
+                        'verify_peer' => FALSE,
+                        'verify_peer_name' => FALSE,
+                    ]
+                ])
+            );
+            return $pdf->download('Laporan Peminjaman.pdf');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $errors[] = $e->getMessage();
+            $response = (new ResponseCreatorPresentationLayer(500, 'Terjadi kesalahan pada server', [], $errors))->getResponse();
+            return response()->json($response, $response['code']);
+        }
     }
 }

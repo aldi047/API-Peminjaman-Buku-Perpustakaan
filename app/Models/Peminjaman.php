@@ -19,8 +19,18 @@ class Peminjaman extends Model
         'total_denda'
     ];
 
+    // protected $appends = [
+    //     'peminjam',
+    //     'petugas',
+    //     'buku'
+    // ];
+
     protected $hidden = [
-        'created_at', 'updated_at'
+        'created_at',
+        'updated_at',
+        'peminjam_user_id',
+        'petugas_user_id',
+        'buku_id'
     ];
 
     protected $casts = [
@@ -28,13 +38,33 @@ class Peminjaman extends Model
         'waktu_pengembalian' => 'datetime'
     ];
 
-    public function peminjam()
+    public function detailPeminjam()
     {
         return $this->belongsTo(User::class, 'peminjam_user_id', 'user_id');
     }
 
-    public function petugas()
+    public function detailPetugas()
     {
         return $this->belongsTo(User::class, 'petugas_user_id', 'user_id');
     }
+
+    public function detailBuku()
+    {
+        return $this->belongsTo(Buku::class, 'buku_id', 'buku_id');
+    }
+
+    // public function getPeminjamAttribute()
+    // {
+    //     return $this->namaPeminjam->nama;
+    // }
+
+    // public function getPetugasAttribute()
+    // {
+    //     return $this->namaPetugas->nama;
+    // }
+
+    // public function getBukuAttribute()
+    // {
+    //     return $this->namaBuku->nama;
+    // }
 }
