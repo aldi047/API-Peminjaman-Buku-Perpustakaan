@@ -10,6 +10,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\PhpWord;
 
 class PeminjamanBusinessLayer
 {
@@ -147,22 +149,94 @@ class PeminjamanBusinessLayer
         return $response->getResponse();
     }
 
-    public function printDetailPeminjaman($id)
+    public function printDetailPeminjamanPdf($id)
     {
         try {
             $peminjaman = Peminjaman::with(['detailPeminjam', 'detailPetugas', 'detailBuku'])
                             ->where('peminjaman_id', $id)->get();
             $pdf = Pdf::loadView('data_print', ['peminjamanList' => $peminjaman]);
-            $pdf->getDomPDF()->setHttpContext(
-                stream_context_create([
-                    'ssl' => [
-                        'allow_self_signed'=> TRUE,
-                        'verify_peer' => FALSE,
-                        'verify_peer_name' => FALSE,
-                    ]
-                ])
-            );
             return $pdf->download('Laporan Peminjaman.pdf');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $errors[] = $e->getMessage();
+            $response = (new ResponseCreatorPresentationLayer(500, 'Terjadi kesalahan pada server', [], $errors))->getResponse();
+            return response()->json($response, $response['code']);
+        }
+    }
+
+    public function printDetailPeminjamanWord($id)
+    {
+        try {
+            $peminjaman = Peminjaman::with(['detailPeminjam', 'detailPetugas', 'detailBuku'])
+                            ->where('peminjaman_id', $id)->first();
+
+            $phpWord = new PhpWord();
+            $section = $phpWord->addSection();
+            $section->addText('Laporan Peminjaman');
+
+            $table = $section->addTable(['borderSize' => 6, 'borderColor' => '000000', 'cellMargin' => 50]);
+
+            $table->addRow();
+            $table->addCell(900, ['gridSpan' => 3])->addText(
+                "Peminjaman ID: " . $peminjaman->peminjaman_id, ['bold' => true]
+            );
+
+            $table->addRow();
+            $cel_peminjam = $table->addCell(3000);
+            $cel_peminjam->addText("Peminjam:");
+            $cel_peminjam->addText($peminjaman->detailPeminjam->nama);
+            $cel_peminjam->addText($peminjaman->detailPeminjam->email);
+
+            $cel_petugas = $table->addCell(3000);
+            $cel_petugas->addText("Petugas:");
+            $cel_petugas->addText($peminjaman->detailPetugas->nama);
+            $cel_petugas->addText($peminjaman->detailPetugas->email);
+
+            $cel_durasi = $table->addCell(3000);
+            $cel_durasi->addText("Durasi Peminjaman:");
+            $cel_durasi->addText("{$peminjaman->durasi_peminjaman_in_days} Hari");
+
+            $table->addRow();
+            $cel_peminjaman = $table->addCell(3000);
+            $cel_peminjaman->addText("Waktu Peminjaman:");
+            $cel_peminjaman->addText($peminjaman->waktu_peminjaman);
+
+            $cel_pengembalian = $table->addCell(3000);
+            $cel_pengembalian->addText("Waktu Pengembalian:");
+            $cel_pengembalian->addText($peminjaman->waktu_pengembalian);
+
+            $cel_denda = $table->addCell(3000);
+            $cel_denda->addText("Total Denda: Rp " . number_format($peminjaman->total_denda, 0, ',', '.'));
+            $cel_denda->addText("Total Keterlambatan: {$peminjaman->total_keterlambatan_in_days} Hari");
+
+            $table->addRow();
+            $buku_row = $table->addCell(2000, ['gridSpan' => 2]);
+            $buku_row->addText(
+                "Buku: {$peminjaman->detailBuku->nama}"
+            );
+            $buku_row->addText("ISBN: {$peminjaman->detailBuku->isbn}");
+            $buku_row->addText("Pengarang: {$peminjaman->detailBuku->pengarang}");
+            $buku_row->addText("Sinopsis: {$peminjaman->detailBuku->sinopsis}");
+
+            $bukuFotoPath = storage_path("app/public/{$peminjaman->detailBuku->foto}");
+            if (file_exists($bukuFotoPath)) {
+                $table->addCell(1000)->addImage($bukuFotoPath, [
+                    'width' => 100,
+                    'height' => 100,
+                    'alignment' => 'center'
+                ]);
+            } else {
+                $table->addCell(4000)->addText("No Image");
+            }
+
+            // $section->addTextBreak(2);
+
+            $tempFile = tempnam(sys_get_temp_dir(), 'word');
+            $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
+            $objWriter->save($tempFile);
+
+            return response()->download($tempFile, 'Laporan Peminjaman.docx')->deleteFileAfterSend(true);
 
         } catch (\Exception $e) {
             DB::rollBack();

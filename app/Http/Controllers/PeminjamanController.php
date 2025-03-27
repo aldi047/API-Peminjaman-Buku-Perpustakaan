@@ -44,13 +44,14 @@ class PeminjamanController extends Controller
         return view('data_print', compact('peminjamanList'));
     }
 
-    public function printDetailPeminjaman(Request $request, $id)
+    public function printDetailPeminjamanPdf(Request $request, $id)
     {
-        // $peminjamanList = Peminjaman::with(['detailPeminjam', 'detailPetugas', 'detailBuku'])
-        //                     ->where('peminjaman_id', $id)->get();
+        return $this->peminjamanBusinessLayer->printDetailPeminjamanPdf($id);
+    }
 
-        // return view('data_print', compact('peminjamanList'));
-        return $this->peminjamanBusinessLayer->printDetailPeminjaman($id);
+    public function printDetailPeminjamanWord(Request $request, $id)
+    {
+        return $this->peminjamanBusinessLayer->printDetailPeminjamanWord($id);
     }
 
 }
